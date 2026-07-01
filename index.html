@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全国消防職員 オンラインフィットネステスト</title>
+<style>
+  :root {
+    --green: #2e7d32;
+    --green-light: #e8f5e9;
+    --green-mid: #4caf50;
+    --border: #c8e6c9;
+    --text: #1b2e1c;
+    --muted: #555;
+    --red: #c62828;
+    --bg: #f4f8f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+  header {
+    background: var(--green);
+    color: #fff;
+    padding: 24px 24px 20px;
+  }
+  header .logo { font-size: 11px; opacity: .7; margin-bottom: 8px; letter-spacing: .05em; }
+  header h1 { font-size: 20px; font-weight: 700; line-height: 1.4; }
+  header p  { font-size: 13px; margin-top: 8px; opacity: .85; line-height: 1.6; }
+
+  .form-wrap { max-width: 640px; margin: 28px auto; padding: 0 16px; }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--green-light);
+  }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  label .req {
+    color: var(--red);
+    margin-left: 4px;
+    font-weight: 700;
+  }
+  label .hint {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid #bdbdbd;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    transition: border-color .15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--green-mid);
+    box-shadow: 0 0 0 3px rgba(76,175,80,.15);
+  }
+  select:disabled { background-color: #f5f5f5; color: #999; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+
+  .notice {
+    background: var(--green-light);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--green);
+    margin-bottom: 16px;
+  }
+  .notice b { font-weight: 700; }
+
+  .pulse-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 480px) { .pulse-group { grid-template-columns: 1fr; } }
+  .pulse-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+
+  .submit-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .03em;
+    transition: background .15s, transform .1s;
+  }
+  .submit-btn:hover { background: #1b5e20; }
+  .submit-btn:active { transform: scale(.98); }
+  .submit-btn:disabled { background: #9e9e9e; cursor: not-allowed; }
+
+  .error-msg { color: var(--red); font-size: 12.5px; margin-top: 5px; display: none; }
+  input.error, select.error { border-color: var(--red); }
+
+  #status-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  #status-overlay.show { display: flex; }
+  .status-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px 28px;
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
+  }
+  .status-box .icon { font-size: 40px; margin-bottom: 12px; }
+  .status-box h2 { font-size: 18px; margin-bottom: 8px; }
+  .status-box p  { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .status-box.error h2 { color: var(--red); }
+  .retry-btn {
+    margin-top: 16px;
+    padding: 10px 24px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  #dept-other-wrap { display: none; margin-top: 10px; }
+
+  /* ── 個人フィードバック ── */
+  #results-section { display: none; max-width: 640px; margin: 0 auto; padding: 0 16px 60px; }
+
+  .res-header {
+    background: var(--green);
+    color: #fff;
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .res-header .check { font-size: 40px; margin-bottom: 6px; }
+  .res-header h2 { font-size: 18px; margin: 0; font-weight: 700; }
+  .res-header .profile { font-size: 13px; opacity: .85; margin-top: 6px; }
+
+  .total-badge {
+    text-align: center;
+    padding: 20px;
+  }
+  .total-badge .lv-num {
+    font-size: 64px;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+  }
+  .total-badge .lv-den { font-size: 22px; color: #999; font-weight: 400; }
+  .total-badge .lv-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .radar-wrap { display: flex; justify-content: center; padding: 8px 0 16px; }
+
+  .score-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .score-table th {
+    background: var(--green);
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .score-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-dots { font-size: 18px; letter-spacing: 3px; white-space: nowrap; }
+  .score-dots .filled  { color: var(--green); }
+  .score-dots .empty   { color: #ccc; }
+  .lv-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: var(--green-light);
+    color: var(--green);
+  }
+  .lv-badge.low  { background: #fce4ec; color: #c62828; }
+  .lv-badge.high { background: #e8f5e9; color: #2e7d32; }
+
+  .prog-box {
+    background: var(--green-light);
+    border-left: 4px solid var(--green);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+  .prog-box .prog-name { font-weight: 700; color: var(--green); font-size: 16px; margin-top: 4px; }
+
+  .ex-item { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; line-height: 1.5; }
+  .ex-item:last-child { border-bottom: none; }
+  .ex-part { font-weight: 700; color: var(--green); display: block; margin-bottom: 2px; }
+  .ex-all-good { color: var(--green); font-weight: 600; text-align: center; padding: 12px 0; }
+
+  .retry-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    padding: 14px;
+    background: #fff;
+    border: 2px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .retry-link:hover { background: var(--green-light); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">東京理科大学 柳田研究室 × 全国消防局</div>
+  <h1>全国消防職員<br>オンラインフィットネステスト</h1>
+  <p>体力測定の結果を入力してください。氏名などの個人情報は入力しないでください。</p>
+</header>
+
+<div class="form-wrap" id="form-section">
+
+  <!-- 所属 -->
+  <div class="card">
+    <div class="card-title">所属</div>
+
+    <div class="field">
+      <label>都道府県<span class="req">*</span></label>
+      <select id="pref" onchange="onPrefChange()">
+        <option value="">--- 選択してください ---</option>
+      </select>
+      <div class="error-msg" id="err-pref">都道府県を選択してください</div>
+    </div>
+
+    <div class="field">
+      <label>消防局・消防本部<span class="req">*</span>
+        <span class="hint">都道府県を選択すると候補が絞り込まれます</span>
+      </label>
+      <select id="dept" disabled onchange="onDeptChange()">
+        <option value="">--- 都道府県を先に選択 ---</option>
+      </select>
+      <div id="dept-other-wrap">
+        <input type="text" id="dept-other" placeholder="消防局・消防本部名を入力してください">
+      </div>
+      <div class="error-msg" id="err-dept">消防局・消防本部を選択または入力してください</div>
+    </div>
+  </div>
+
+  <!-- 個人情報 -->
+  <div class="card">
+    <div class="card-title">基本情報</div>
+
+    <div class="field">
+      <label>職種<span class="req">*</span></label>
+      <input type="text" id="job" placeholder="例：消防士、消防司令補">
+      <div class="error-msg" id="err-job">職種を入力してください</div>
+    </div>
+
+    <div class="field">
+      <label>職員ID<span class="req">*</span>
+        <span class="hint">氏名は入力しないでください。消防局内で管理している番号等をご利用ください。</span>
+      </label>
+      <input type="text" id="staff-id" placeholder="例：001234">
+      <div class="error-msg" id="err-staff">職員IDを入力してください</div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>年齢<span class="req">*</span></label>
+        <input type="number" id="age" min="18" max="70" placeholder="例：34">
+        <div class="error-msg" id="err-age">18〜70の数値を入力してください</div>
+      </div>
+      <div class="field">
+        <label>性別<span class="req">*</span></label>
+        <select id="gender">
+          <option value="">--- 選択 ---</option>
+          <option>男性</option>
+          <option>女性</option>
+        </select>
+        <div class="error-msg" id="err-gender">性別を選択してください</div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>勤務形態<span class="req">*</span>
+          <span class="hint">現場活動部隊 → 活動隊員 / 内勤・日勤 → 日勤</span>
+        </label>
+        <select id="duty">
+          <option value="">--- 選択 ---</option>
+          <option>活動隊員</option>
+          <option>日勤</option>
+        </select>
+        <div class="error-msg" id="err-duty">勤務形態を選択してください</div>
+      </div>
+      <div class="field">
+        <label>テスト回次<span class="req">*</span></label>
+        <select id="round">
+          <option value="">--- 選択 ---</option>
+          <option>第1回</option>
+          <option>第2回</option>
+        </select>
+        <div class="error-msg" id="err-round">テスト回次を選択してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スクワットテスト -->
+  <div class="card">
+    <div class="card-title">スクワットテスト（脈拍）</div>
+    <div class="notice">
+      <b>測定方法</b><br>
+      ①安静時の脈拍を15秒カウント → ②スクワット運動（20回）直後の脈拍を15秒カウント → ③運動終了1分後の脈拍を15秒カウント
+    </div>
+    <div class="pulse-group">
+      <div>
+        <div class="pulse-label">①安静時（1回目）</div>
+        <input type="number" id="p1" min="0" max="100" placeholder="拍">
+      </div>
+      <div>
+        <div class="pulse-label">②運動直後（2回目）</div>
+        <input type="number" id="p2" min="0" max="100" placeholder="拍">
+      </div>
+      <div>
+        <div class="pulse-label">③1分後（3回目）</div>
+        <input type="number" id="p3" min="0" max="100" placeholder="拍">
+      </div>
+    </div>
+    <div class="error-msg" id="err-pulse">脈拍3回分を入力してください（0〜100）</div>
+  </div>
+
+  <!-- その他テスト -->
+  <div class="card">
+    <div class="card-title">各種テスト（回数）</div>
+    <div class="row2">
+      <div class="field">
+        <label>座位ステッピングテスト<span class="req">*</span></label>
+        <input type="number" id="step" min="0" max="200" placeholder="回">
+        <div class="error-msg" id="err-step">回数を入力してください</div>
+      </div>
+      <div class="field">
+        <label>プッシュアップテスト<span class="req">*</span></label>
+        <input type="number" id="push" min="0" max="200" placeholder="回">
+        <div class="error-msg" id="err-push">回数を入力してください</div>
+      </div>
+      <div class="field">
+        <label>上体起こしテスト<span class="req">*</span></label>
+        <input type="number" id="situp" min="0" max="200" placeholder="回">
+        <div class="error-msg" id="err-situp">回数を入力してください</div>
+      </div>
+      <div class="field">
+        <label>椅子立ち上がりテスト（CS-30）<span class="req">*</span></label>
+        <input type="number" id="chair" min="0" max="200" placeholder="回">
+        <div class="error-msg" id="err-chair">回数を入力してください</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitForm()">送信する</button>
+
+</div><!-- /form-section -->
+
+<!-- ── 個人フィードバック（送信後に表示） ── -->
+<div id="results-section">
+
+  <div class="res-header">
+    <div class="check">✅</div>
+    <h2>テスト完了！あなたの結果</h2>
+    <div class="profile" id="res-profile"></div>
+  </div>
+
+  <!-- トータルレベル -->
+  <div class="card">
+    <div class="card-title">トータルフィットネスレベル</div>
+    <div class="total-badge">
+      <div class="lv-num" id="res-total-num">—</div>
+      <div class="lv-den">/ 10</div>
+      <div class="lv-label">得点合計から算出（最大10）</div>
+    </div>
+  </div>
+
+  <!-- レーダーチャート + 種目別得点 -->
+  <div class="card">
+    <div class="card-title">種目別得点（1〜5点）</div>
+    <div class="radar-wrap" id="res-radar"></div>
+    <table class="score-table">
+      <thead>
+        <tr>
+          <th style="text-align:left;">種目</th>
+          <th>記録</th>
+          <th>得点</th>
+          <th>評価</th>
+        </tr>
+      </thead>
+      <tbody id="res-scores-body"></tbody>
+    </table>
+  </div>
+
+  <!-- 推奨プログラム -->
+  <div class="card">
+    <div class="card-title">おすすめトレーニングメニュー</div>
+    <div class="prog-box">
+      <div style="font-size:12px;color:var(--muted);">フィットネスレベルに応じた推奨プログラム</div>
+      <div class="prog-name" id="res-program"></div>
+    </div>
+  </div>
+
+  <!-- 強化が必要な部位 -->
+  <div class="card">
+    <div class="card-title">強化が必要な部位とおすすめエクササイズ</div>
+    <div id="res-exercises"></div>
+  </div>
+
+  <a class="retry-link" href="javascript:location.reload()">もう一度テスト結果を入力する</a>
+
+</div><!-- /results-section -->
+
+<!-- ステータスオーバーレイ -->
+<div id="status-overlay">
+  <div class="status-box" id="status-box">
+    <div class="icon" id="status-icon">⏳</div>
+    <h2 id="status-title">送信中...</h2>
+    <p id="status-msg">しばらくお待ちください</p>
+    <button class="retry-btn" id="retry-btn" onclick="closeOverlay()" style="display:none">閉じる</button>
+  </div>
+</div>
+
+<script>
+/* ===================== 消防局データ ===================== */
+var DEPARTMENTS = {
+  "北海道": ["札幌市消防局","函館市消防本部","旭川市消防本部","室蘭市消防本部","釧路市消防本部","帯広市消防本部","北見市消防本部","苫小牧市消防本部","小樽市消防本部","江別市消防本部","千歳市消防本部","恵庭市消防本部","岩見沢市消防本部","美唄市消防本部","芦別市消防本部","赤平市消防本部","三笠市消防本部","滝川市消防本部","砂川市消防本部","深川市消防本部","富良野市消防本部","登別市消防本部","伊達市消防本部","稚内市消防本部","留萌市消防本部","士別市消防本部","名寄市消防本部","北広島市消防本部","石狩市消防本部","北斗市消防本部","夕張市消防本部","網走市消防本部","紋別市消防本部","根室市消防本部","浦河地方消防組合消防本部","石狩東部広域消防事務組合消防本部","渡島西部広域行政組合消防本部","檜山広域行政組合消防本部","後志広域連合消防本部","空知中部広域連合消防本部","空知南部消防組合消防本部","南空知消防組合消防本部","上川北部消防事務組合消防本部","上川中部広域事務組合消防本部","十勝消防事務組合消防本部","釧路東部消防事務組合消防本部","根室北部消防事務組合消防本部","オホーツク広域消防事務組合消防本部","その他（直接入力）"],
+  "青森県": ["青森市消防本部","弘前地区消防事務組合消防本部","八戸市消防本部","黒石市消防本部","五所川原地区消防事務組合消防本部","三沢市消防本部","むつ地区消防事務組合消防本部","十和田市消防本部","三戸地区消防事務組合消防本部","上十三地域消防事務組合消防本部","西北五消防事務組合消防本部","下北地域広域行政事務組合消防本部","その他（直接入力）"],
+  "岩手県": ["盛岡地区広域消防組合消防本部","宮古地区広域行政組合消防本部","大船渡地区消防組合消防本部","花巻地区消防組合消防本部","北上地区消防組合消防本部","久慈地区広域行政組合消防本部","遠野市消防本部","一関地区広域行政組合消防本部","陸前高田市消防本部","釜石地区消防組合消防本部","二戸地区広域行政組合消防本部","奥州地区広域行政組合消防本部","岩手中部広域行政組合消防本部","その他（直接入力）"],
+  "宮城県": ["仙台市消防局","塩竈地区消防事務組合消防本部","大崎市消防本部","石巻地区広域行政事務組合消防本部","気仙沼市消防本部","白石市消防本部","名取市消防本部","角田市消防本部","多賀城市消防本部","岩沼市消防本部","登米市消防本部","栗原市消防本部","東松島市消防本部","宮城県消防学校","その他（直接入力）"],
+  "秋田県": ["秋田市消防本部","能代市消防本部","横手市消防本部","大館市消防本部","男鹿市消防本部","湯沢・雄勝広域市町村圏組合消防本部","鹿角広域行政組合消防本部","由利本荘市消防本部","大仙・仙北広域市町村圏組合消防本部","北秋田市消防本部","にかほ市消防本部","潟上地区消防一部事務組合消防本部","その他（直接入力）"],
+  "山形県": ["山形市消防本部","米沢市消防本部","鶴岡市消防本部","酒田市消防本部","新庄市消防本部","寒河江市消防本部","上山市消防本部","村山市消防本部","長井市消防本部","天童市消防本部","東根市消防本部","尾花沢市消防本部","南陽市消防本部","山形県消防協会","その他（直接入力）"],
+  "福島県": ["福島市消防本部","会津若松地方広域市町村圏整備組合消防本部","郡山地方広域消防組合消防本部","いわき市消防本部","白河地方広域市町村圏整備組合消防本部","須賀川地方広域消防組合消防本部","相双地方広域市町村圏組合消防本部","二本松市消防本部","田村広域行政組合消防本部","南会津地方消防本部","喜多方地方広域市町村圏組合消防本部","南相馬市消防本部","その他（直接入力）"],
+  "茨城県": ["水戸市消防本部","日立市消防本部","土浦市消防本部","古河市消防本部","石岡市消防本部","結城市消防本部","龍ケ崎市消防本部","下妻市消防本部","常総地方広域市町村圏事務組合消防本部","常陸太田・高萩広域市町村圏事務組合消防本部","笠間地方広域事務組合消防本部","取手市消防本部","ひたちなか・東海広域事務組合消防本部","筑西広域市町村圏事務組合消防本部","鹿行広域事務組合消防本部","境地区消防組合消防本部","坂東市消防本部","稲敷広域消防本部","常陸大宮市消防本部","つくば市消防本部","守谷市消防本部","那珂市消防本部","桜川筑西消防組合消防本部","鉾田市消防本部","行方市消防本部","牛久市消防本部","つくばみらい市消防本部","その他（直接入力）"],
+  "栃木県": ["宇都宮市消防本部","足利市消防本部","栃木市消防本部","佐野市消防本部","鹿沼地区消防組合消防本部","日光市消防本部","小山広域保健衛生組合消防本部","真岡地区消防組合消防本部","大田原市消防本部","矢板市消防本部","那須塩原市消防本部","塩谷広域行政組合消防本部","那須烏山市消防本部","芳賀地区消防組合消防本部","那須地区消防組合消防本部","その他（直接入力）"],
+  "群馬県": ["前橋市消防局","高崎市消防局","桐生市消防本部","伊勢崎市消防本部","太田市消防本部","沼田市消防本部","館林地区消防組合消防本部","渋川地区広域市町村圏振興整備組合消防本部","藤岡市消防本部","富岡市消防本部","安中市消防本部","吾妻郡東部消防本部","利根沼田広域消防本部","多野・藤岡広域市町村圏振興整備組合消防本部","その他（直接入力）"],
+  "埼玉県": ["さいたま市消防局","川越市消防本部","熊谷市消防本部","川口市消防局","行田市消防本部","秩父消防本部","所沢市消防本部","飯能市消防本部","加須市消防本部","本庄市消防本部","春日部市消防本部","狭山市消防本部","羽生市消防本部","鴻巣市消防本部","深谷市消防本部","上尾市消防本部","草加市消防本部","越谷市消防本部","蕨市消防本部","戸田市消防本部","入間市消防本部","朝霞市消防本部","志木市消防本部","和光市消防本部","新座市消防本部","桶川市消防本部","久喜市消防本部","北本市消防本部","八潮市消防本部","富士見市消防本部","三郷市消防本部","蓮田市消防本部","坂戸・鶴ヶ島消防組合消防本部","幸手市消防本部","鶴ヶ島市消防本部","日高市消防本部","吉川市消防本部","ふじみ野市消防本部","さいたま市西部消防局","比企広域消防本部","児玉郡市広域消防本部","その他（直接入力）"],
+  "千葉県": ["千葉市消防局","銚子市消防本部","市川市消防局","船橋市消防局","木更津市消防本部","松戸市消防本部","野田市消防本部","茂原市消防本部","成田市消防本部","佐倉市消防本部","習志野市消防本部","市原市消防本部","流山市消防本部","八千代市消防本部","我孫子市消防本部","鴨川市消防本部","鎌ヶ谷市消防本部","君津市消防本部","富津市消防本部","浦安市消防本部","四街道市消防本部","袖ケ浦市消防本部","八街市消防本部","印西市消防本部","白井市消防本部","富里市消防本部","南房総市消防本部","匝瑳市消防本部","香取広域市町村圏事務組合消防本部","山武郡市広域行政組合消防本部","夷隅郡市広域市町村圏事務組合消防本部","長生郡市広域市町村圏組合消防本部","安房郡市広域市町村圏事務組合消防本部","印旛郡市広域行政事務組合消防本部","その他（直接入力）"],
+  "東京都": ["東京消防庁","その他（直接入力）"],
+  "神奈川県": ["横浜市消防局","川崎市消防局","相模原市消防局","横須賀市消防局","平塚市消防本部","鎌倉市消防本部","藤沢市消防本部","小田原市消防本部","茅ヶ崎市消防本部","逗子市消防本部","三浦市消防本部","秦野市消防本部","厚木市消防本部","大和市消防本部","伊勢原市消防本部","海老名市消防本部","座間市消防本部","南足柄市消防本部","綾瀬市消防本部","足柄上郡消防本部","湘南広域都市行政協議会消防本部","その他（直接入力）"],
+  "新潟県": ["新潟市消防局","長岡市消防本部","三条市消防本部","柏崎市消防本部","新発田地域広域消防本部","小千谷市消防本部","加茂市消防本部","十日町地域消防本部","見附市消防本部","村上地域消防本部","燕市消防本部","糸魚川市消防本部","妙高市消防本部","五泉市消防本部","上越地域消防事務組合消防本部","阿賀野市消防本部","佐渡市消防本部","魚沼市消防本部","南魚沼市消防本部","胎内市消防本部","その他（直接入力）"],
+  "富山県": ["富山市消防局","高岡市消防本部","魚津市消防本部","氷見市消防本部","滑川市消防本部","黒部市消防本部","砺波市消防本部","小矢部市消防本部","南砺市消防本部","射水市消防本部","その他（直接入力）"],
+  "石川県": ["金沢市消防局","七尾鹿島広域圏事務組合消防本部","小松市消防本部","輪島市消防本部","珠洲市消防本部","加賀市消防本部","羽咋市消防本部","かほく市消防本部","白山市消防本部","能美市消防本部","能登北部消防事務組合消防本部","能登中部広域行政組合消防本部","石川中央消防本部","南加賀消防本部","その他（直接入力）"],
+  "福井県": ["福井市消防局","敦賀美方消防組合消防本部","小浜市消防本部","大野・勝山消防組合消防本部","鯖江・丹生消防組合消防本部","あわら・坂井消防組合消防本部","嶺南西部消防組合消防本部","奥越広域組合消防本部","南越消防組合消防本部","その他（直接入力）"],
+  "山梨県": ["甲府市消防本部","富士吉田市消防本部","都留市消防本部","山梨市消防本部","大月市消防本部","韮崎市消防本部","南アルプス市消防本部","北杜市消防本部","甲斐市消防本部","笛吹市消防本部","上野原市消防本部","甲州市消防本部","中央市消防本部","峡北消防本部","峡南消防本部","富士・東部消防本部","その他（直接入力）"],
+  "長野県": ["長野市消防局","松本市消防本部","上田地域広域連合消防本部","岡谷市消防本部","飯田市消防本部","諏訪地域消防本部","須坂市消防本部","小諸市消防本部","伊那市消防本部","駒ヶ根市消防本部","中野市消防本部","大町市消防本部","飯山市消防本部","茅野市消防本部","塩尻市消防本部","佐久市消防本部","千曲坂城消防本部","東筑摩郡・松本市消防本部","木曽広域消防本部","安曇野市消防本部","その他（直接入力）"],
+  "岐阜県": ["岐阜市消防本部","大垣市消防本部","高山市消防本部","多治見市消防本部","関市消防本部","中津川市消防本部","美濃市消防本部","瑞浪市消防本部","羽島市消防本部","恵那市消防本部","美濃加茂市消防本部","土岐市消防本部","各務原市消防本部","可児市消防本部","山県市消防本部","瑞穂市消防本部","飛騨市消防本部","本巣市消防本部","郡上市消防本部","下呂市消防本部","海津市消防本部","羽島郡広域連合消防本部","岐南・笠松消防組合消防本部","養老郡広域行政事務センター消防本部","不破広域行政事務組合消防本部","西濃消防事務組合消防本部","揖斐広域連合消防本部","その他（直接入力）"],
+  "静岡県": ["静岡市消防局","浜松市消防局","沼津市消防本部","熱海市消防本部","三島市消防本部","富士宮市消防本部","島田市消防本部","富士市消防本部","磐田市消防本部","焼津市消防本部","掛川市消防本部","藤枝市消防本部","御殿場市消防本部","袋井市消防本部","下田市消防本部","湖西市消防本部","伊豆市消防本部","伊豆の国市消防本部","菊川市消防本部","牧之原市消防本部","東部消防指令センター","消防本部（小山町・駿東郡）","その他（直接入力）"],
+  "愛知県": ["名古屋市消防局","豊橋市消防本部","岡崎市消防本部","一宮市消防本部","瀬戸市消防本部","半田市消防本部","春日井市消防本部","豊川市消防本部","津島市消防本部","碧南市消防本部","刈谷市消防本部","豊田市消防本部","安城市消防本部","西尾市消防本部","蒲郡市消防本部","犬山市消防本部","常滑市消防本部","江南市消防本部","小牧市消防本部","稲沢市消防本部","新城市消防本部","東海市消防本部","大府市消防本部","知多市消防本部","知立市消防本部","尾張旭市消防本部","高浜市消防本部","岩倉市消防本部","豊明市消防本部","日進市消防本部","田原市消防本部","愛西市消防本部","清須市消防本部","北名古屋市消防本部","弥富市消防本部","みよし市消防本部","あま市消防本部","長久手市消防本部","尾三消防本部","知多中部広域事務組合消防本部","知多南部消防組合消防本部","西尾市・一色・吉良・幡豆消防本部","その他（直接入力）"],
+  "三重県": ["津市消防本部","四日市市消防本部","伊勢市消防本部","松阪市消防本部","桑名市消防本部","鈴鹿市消防本部","名張市消防本部","尾鷲市消防本部","亀山市消防本部","鳥羽市消防本部","熊野市消防本部","いなべ市消防本部","伊賀市消防本部","志摩市消防本部","南伊勢町消防本部","紀宝町消防本部","多気・度会消防組合消防本部","その他（直接入力）"],
+  "滋賀県": ["大津市消防局","彦根市消防本部","長浜市消防本部","近江八幡市消防本部","草津市消防本部","守山市消防本部","栗東市消防本部","甲賀広域行政組合消防本部","野洲市消防本部","湖南市消防本部","高島市消防本部","東近江行政組合消防本部","米原市消防本部","湖北地域消防本部","その他（直接入力）"],
+  "京都府": ["京都市消防局","福知山市消防本部","舞鶴市消防本部","綾部市消防本部","宇治市消防本部","宮津市消防本部","亀岡市消防本部","城陽市消防本部","向日市消防本部","長岡京市消防本部","八幡市消防本部","京田辺市消防本部","京丹後市消防本部","南丹市消防本部","木津川市消防本部","乙訓消防組合消防本部","南山城村消防本部","相楽中部消防組合消防本部","与謝野町消防本部","その他（直接入力）"],
+  "大阪府": ["大阪市消防局","堺市消防局","岸和田市消防本部","豊中市消防本部","池田市消防本部","吹田市消防本部","泉大津市消防本部","高槻市消防本部","貝塚市消防本部","守口市消防本部","枚方市消防本部","茨木市消防本部","八尾市消防本部","泉佐野市消防本部","富田林市消防本部","寝屋川市消防本部","河内長野市消防本部","松原市消防本部","大東市消防本部","和泉市消防本部","箕面市消防本部","柏原市消防本部","羽曳野市消防本部","門真市消防本部","摂津市消防本部","高石市消防本部","藤井寺市消防本部","東大阪市消防局","泉南市消防本部","四條畷市消防本部","交野市消防本部","大阪狭山市消防本部","阪南市消防本部","島本町消防本部","豊能町消防本部","能勢町消防本部","忠岡町消防本部","田尻町消防本部","岬町消防本部","太子町消防本部","河南町消防本部","千早赤阪村消防本部","南河内消防組合消防本部","その他（直接入力）"],
+  "兵庫県": ["神戸市消防局","姫路市消防本部","尼崎市消防本部","明石市消防本部","西宮市消防局","洲本市消防本部","芦屋市消防本部","伊丹市消防本部","相生市消防本部","豊岡市消防本部","加古川市消防本部","赤穂市消防本部","西脇市消防本部","宝塚市消防本部","三木市消防本部","高砂市消防本部","川西市消防本部","小野市消防本部","三田市消防本部","加西市消防本部","丹波篠山市消防本部","養父市消防本部","丹波市消防本部","南あわじ市消防本部","朝来市消防本部","淡路市消防本部","宍粟市消防本部","加東市消防本部","たつの市消防本部","猪名川町消防本部","播磨町消防本部","稲美町消防本部","太子町消防本部","東播磨消防本部","その他（直接入力）"],
+  "奈良県": ["奈良市消防局","大和高田市消防本部","大和郡山市消防本部","天理市消防本部","橿原市消防本部","桜井市消防本部","五條市消防本部","御所市消防本部","生駒市消防本部","香芝市消防本部","葛城市消防本部","宇陀市消防本部","山辺・宇陀広域消防組合消防本部","吉野消防本部","中和広域消防組合消防本部","その他（直接入力）"],
+  "和歌山県": ["和歌山市消防局","海南市消防本部","橋本市消防本部","有田市消防本部","御坊市消防本部","田辺市消防本部","新宮市消防本部","紀の川市消防本部","岩出市消防本部","有田広域行政事務組合消防本部","日高広域消防本部","那智勝浦・太地町消防本部","東牟婁地方消防本部","その他（直接入力）"],
+  "鳥取県": ["鳥取市消防本部","米子市消防本部","倉吉市消防本部","境港市消防本部","岩美郡消防本部","八頭広域連合消防本部","東部広域消防管理組合消防本部","中部ふるさと広域連合消防本部","日野広域消防本部","その他（直接入力）"],
+  "島根県": ["松江市消防本部","浜田市消防本部","出雲市消防本部","益田市消防本部","大田市消防本部","安来市消防本部","江津市消防本部","雲南市消防本部","隠岐広域連合消防本部","その他（直接入力）"],
+  "岡山県": ["岡山市消防局","倉敷市消防局","津山市消防本部","玉野市消防本部","笠岡市消防本部","井原市消防本部","総社市消防本部","高梁市消防本部","新見市消防本部","備前市消防本部","瀬戸内市消防本部","赤磐市消防本部","真庭市消防本部","美作市消防本部","浅口市消防本部","和気地区消防組合消防本部","その他（直接入力）"],
+  "広島県": ["広島市消防局","呉市消防本部","竹原市消防本部","三原市消防本部","尾道市消防局","因島地区消防組合消防本部","福山市消防局","府中市消防本部","三次市消防本部","庄原市消防本部","大竹市消防本部","東広島市消防本部","廿日市市消防本部","安芸高田市消防本部","江田島市消防本部","安芸郡消防組合消防本部","山県消防組合消防本部","世羅広域消防組合消防本部","神石高原消防組合消防本部","その他（直接入力）"],
+  "山口県": ["下関市消防局","宇部市消防本部","山口市消防本部","萩市消防本部","防府市消防本部","下松市消防本部","岩国市消防本部","光市消防本部","長門市消防本部","柳井地区消防組合消防本部","美祢市消防本部","周南市消防本部","山陽小野田市消防本部","阿武消防組合消防本部","大島郡消防組合消防本部","その他（直接入力）"],
+  "徳島県": ["徳島市消防局","鳴門市消防本部","小松島市消防本部","阿南市消防本部","吉野川市消防本部","阿波市消防本部","美馬市消防本部","三好市消防本部","那賀消防組合消防本部","美波・牟岐消防組合消防本部","海部消防組合消防本部","その他（直接入力）"],
+  "香川県": ["高松市消防局","丸亀市消防本部","坂出市消防本部","善通寺市消防本部","観音寺市消防本部","さぬき市消防本部","東かがわ市消防本部","三豊市消防本部","小豆島広域行政事務組合消防本部","三木高松消防組合消防本部","南部消防組合消防本部","その他（直接入力）"],
+  "愛媛県": ["松山市消防局","今治市消防本部","宇和島市消防本部","八幡浜市消防本部","新居浜市消防本部","西条市消防本部","大洲市消防本部","伊予市消防本部","四国中央市消防本部","西予市消防本部","東温市消防本部","越智郡消防組合消防本部","上島町消防本部","久万高原消防本部","その他（直接入力）"],
+  "高知県": ["高知市消防局","室戸市消防本部","安芸市消防本部","南国市消防本部","土佐市消防本部","須崎市消防本部","宿毛市消防本部","土佐清水市消防本部","四万十市消防本部","香南市消防本部","香美市消防本部","長岡・土佐消防組合消防本部","嶺北消防組合消防本部","吾川郡消防組合消防本部","幡多広域市町村圏事務組合消防本部","その他（直接入力）"],
+  "福岡県": ["北九州市消防局","福岡市消防局","大牟田市消防本部","久留米市消防本部","直方市消防本部","飯塚市消防本部","田川市消防本部","柳川市消防本部","八女市消防本部","筑後市消防本部","大川市消防本部","行橋市消防本部","豊前市消防本部","中間市消防本部","小郡市消防本部","春日・大野城・那珂川消防組合消防本部","宗像地区消防事務組合消防本部","前原市消防本部","太宰府市消防本部","嘉麻市消防本部","朝倉市消防本部","みやま市消防本部","糸島市消防本部","筑紫野市消防本部","古賀市消防本部","福津市消防本部","その他（直接入力）"],
+  "佐賀県": ["佐賀市消防本部","唐津市消防本部","鳥栖・三養基地区消防事務組合消防本部","多久市消防本部","伊万里市消防本部","武雄市消防本部","鹿島市消防本部","小城市消防本部","嬉野市消防本部","神埼地区消防事務組合消防本部","杵藤地区広域市町村圏組合消防本部","その他（直接入力）"],
+  "長崎県": ["長崎市消防局","佐世保市消防本部","島原市消防本部","諫早市消防本部","大村市消防本部","平戸市消防本部","松浦市消防本部","対馬市消防本部","壱岐市消防本部","五島市消防本部","西海市消防本部","雲仙市消防本部","南島原市消防本部","東彼杵地区広域市町村圏組合消防本部","北松南部消防組合消防本部","その他（直接入力）"],
+  "熊本県": ["熊本市消防局","八代市消防本部","人吉市消防本部","荒尾市消防本部","水俣市消防本部","玉名地域消防本部","山鹿市消防本部","菊池広域連合消防本部","宇土市消防本部","上天草市消防本部","宇城広域連合消防本部","阿蘇広域行政事務組合消防本部","天草広域連合消防本部","球磨地域消防本部","上益城消防組合消防本部","その他（直接入力）"],
+  "大分県": ["大分市消防局","別府市消防本部","中津市消防本部","日田市消防本部","佐伯市消防本部","臼杵市消防本部","津久見市消防本部","竹田市消防本部","豊後高田市消防本部","杵築市消防本部","宇佐市消防本部","豊後大野市消防本部","由布市消防本部","国東市消防本部","姫島村消防本部","玖珠郡消防本部","その他（直接入力）"],
+  "宮崎県": ["宮崎市消防局","都城市消防本部","延岡市消防本部","日南市消防本部","小林市消防本部","日向市消防本部","串間市消防本部","西都市消防本部","えびの市消防本部","東諸県郡消防組合消防本部","児湯郡消防組合消防本部","西臼杵広域行政事務組合消防本部","東児湯消防組合消防本部","その他（直接入力）"],
+  "鹿児島県": ["鹿児島市消防局","鹿屋市消防本部","枕崎市消防本部","阿久根市消防本部","出水市消防本部","指宿市消防本部","西之表市消防本部","垂水市消防本部","薩摩川内市消防本部","日置市消防本部","曽於市消防本部","霧島市消防本部","いちき串木野市消防本部","南さつま市消防本部","志布志市消防本部","奄美市消防本部","南九州市消防本部","伊佐市消防本部","姶良市消防本部","揖宿郡消防組合消防本部","肝属地区消防組合消防本部","大島地区消防組合消防本部","その他（直接入力）"],
+  "沖縄県": ["那覇市消防本部","宜野湾市消防本部","浦添市消防本部","名護市消防本部","糸満市消防本部","沖縄市消防本部","豊見城市消防本部","うるま市消防本部","南城市消防本部","北谷町消防本部","北中城村消防本部","中城村消防本部","西原町消防本部","与那原町消防本部","八重瀬町消防本部","南風原町消防本部","北部消防本部","中頭消防本部","島尻消防本部","宮古島市消防本部","石垣市消防本部","その他（直接入力）"]
+};
+
+var PREFS = Object.keys(DEPARTMENTS);
+
+/* ===================== UI 制御 ===================== */
+(function initPrefs() {
+  var sel = document.getElementById('pref');
+  PREFS.forEach(function(p) {
+    var o = document.createElement('option');
+    o.value = p; o.textContent = p;
+    sel.appendChild(o);
+  });
+})();
+
+function onPrefChange() {
+  var pref = document.getElementById('pref').value;
+  var deptSel = document.getElementById('dept');
+  deptSel.innerHTML = '';
+  if (!pref) {
+    deptSel.disabled = true;
+    var o = document.createElement('option');
+    o.value = ''; o.textContent = '--- 都道府県を先に選択 ---';
+    deptSel.appendChild(o);
+    document.getElementById('dept-other-wrap').style.display = 'none';
+    return;
+  }
+  deptSel.disabled = false;
+  var blank = document.createElement('option');
+  blank.value = ''; blank.textContent = '--- 消防局・消防本部を選択 ---';
+  deptSel.appendChild(blank);
+  (DEPARTMENTS[pref] || []).forEach(function(d) {
+    var o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    deptSel.appendChild(o);
+  });
+  document.getElementById('dept-other-wrap').style.display = 'none';
+  document.getElementById('dept-other').value = '';
+  clearErr('pref');
+}
+
+function onDeptChange() {
+  var val = document.getElementById('dept').value;
+  var wrap = document.getElementById('dept-other-wrap');
+  if (val === 'その他（直接入力）') {
+    wrap.style.display = 'block';
+    document.getElementById('dept-other').focus();
+  } else {
+    wrap.style.display = 'none';
+    document.getElementById('dept-other').value = '';
+  }
+  if (val) clearErr('dept');
+}
+
+/* ===================== バリデーション ===================== */
+function showErr(id) { document.getElementById('err-' + id).style.display = 'block'; }
+function clearErr(id) { document.getElementById('err-' + id).style.display = 'none'; }
+function markErr(elId) { document.getElementById(elId).classList.add('error'); }
+function clearMark(elId) { document.getElementById(elId).classList.remove('error'); }
+
+function validate() {
+  var ok = true;
+  function check(id, errId, cond) {
+    clearMark(id); clearErr(errId);
+    if (!cond) { markErr(id); showErr(errId); ok = false; }
+  }
+  var pref = document.getElementById('pref').value;
+  var dept = document.getElementById('dept').value;
+  var deptFinal = (dept === 'その他（直接入力）')
+    ? (document.getElementById('dept-other').value || '').trim()
+    : dept;
+
+  if (!pref) { markErr('pref'); showErr('pref'); ok = false; } else clearMark('pref');
+  if (!deptFinal) { markErr('dept'); showErr('dept'); ok = false; } else clearMark('dept');
+
+  check('job',   'job',   (document.getElementById('job').value || '').trim() !== '');
+  check('staff-id', 'staff', (document.getElementById('staff-id').value || '').trim() !== '');
+  var age = Number(document.getElementById('age').value);
+  check('age', 'age', age >= 18 && age <= 70);
+  check('gender', 'gender', document.getElementById('gender').value !== '');
+  check('duty',   'duty',   document.getElementById('duty').value !== '');
+  check('round',  'round',  document.getElementById('round').value !== '');
+
+  var p1 = Number(document.getElementById('p1').value);
+  var p2 = Number(document.getElementById('p2').value);
+  var p3 = Number(document.getElementById('p3').value);
+  var pOk = [p1,p2,p3].every(function(v){ return v >= 0 && v <= 100 && v === Math.floor(v); });
+  clearErr('pulse');
+  if (!pOk) { showErr('pulse'); ok = false; }
+
+  ['step','push','situp','chair'].forEach(function(id) {
+    var v = Number(document.getElementById(id).value);
+    check(id, id, v >= 0 && v <= 200 && v === Math.floor(v));
+  });
+
+  return { ok: ok, dept: deptFinal };
+}
+
+/* ===================== 送信先 URL =====================
+ * ★ ここに Apps Script のデプロイ URL を貼り付けてください ★
+ * 例: https://script.google.com/macros/s/AKfycb.../exec
+ * デプロイ設定：実行ユーザー「自分」、アクセス「全員（匿名含む）」
+ *======================================================*/
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDDlkgmhZoNyXrolDtsbTG_nFtX4n4isTx7D4rc8i_id41HimPN-iJrrhL6wSJJm1h/exec';
+
+/* ===================== 送信 ===================== */
+function submitForm() {
+  if (SCRIPT_URL.indexOf('ここに') !== -1) {
+    alert('SCRIPT_URL が設定されていません。\nこのHTMLファイルをテキストエディタで開き、\nSCRIPT_URL にデプロイURLを貼り付けてください。');
+    return;
+  }
+  var r = validate();
+  if (!r.ok) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  var data = {
+    dept:    r.dept,
+    job:     (document.getElementById('job').value || '').trim(),
+    staffId: (document.getElementById('staff-id').value || '').trim(),
+    age:     Number(document.getElementById('age').value),
+    gender:  document.getElementById('gender').value,
+    duty:    document.getElementById('duty').value,
+    round:   document.getElementById('round').value,
+    p1:      Number(document.getElementById('p1').value),
+    p2:      Number(document.getElementById('p2').value),
+    p3:      Number(document.getElementById('p3').value),
+    step:    Number(document.getElementById('step').value),
+    push:    Number(document.getElementById('push').value),
+    situp:   Number(document.getElementById('situp').value),
+    chair:   Number(document.getElementById('chair').value)
+  };
+
+  document.getElementById('submit-btn').disabled = true;
+  showOverlay('⏳', '送信中...', 'しばらくお待ちください', false);
+
+  /* fetch で Apps Script の doPost() を呼び出します。
+   * Content-Type を text/plain にすることで CORS プリフライトを回避しています。
+   * Apps Script 側は "全員（匿名含む）" でデプロイされているため
+   * Google アカウントなしでも送信できます。                             */
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(data),
+    redirect: 'follow'
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('サーバーエラー ' + res.status);
+    return res.json();
+  })
+  .then(function(result) { onSuccess(result); })
+  .catch(function(err) {
+    onFailure({ message: err.message || String(err) });
+  });
+}
+
+function onSuccess(result) {
+  if (result && result.error) {
+    onFailure({ message: result.error });
+    return;
+  }
+  closeOverlay();
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('form-section').style.display = 'none';
+  showResults(result);
+}
+
+function showResults(r) {
+  document.getElementById('res-profile').textContent =
+    r.ageBand + '・' + r.gender + '・' + r.duty;
+  document.getElementById('res-total-num').textContent = r.totalLevel;
+  document.getElementById('res-program').textContent  = r.program;
+
+  // レーダーチャート
+  var levels = r.scores.map(function(s) { return s.level; });
+  document.getElementById('res-radar').innerHTML = makeRadarSvg(levels);
+
+  // 種目別テーブル
+  var tbody = document.getElementById('res-scores-body');
+  tbody.innerHTML = '';
+  r.scores.forEach(function(s) {
+    var dots = '';
+    for (var i = 1; i <= 5; i++) {
+      dots += '<span class="' + (i <= s.level ? 'filled' : 'empty') + '">●</span>';
+    }
+    var cls = s.level <= 2 ? 'low' : (s.level >= 4 ? 'high' : '');
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-size:13px;">' + s.label + '</td>' +
+      '<td style="text-align:center;font-size:13px;">' + s.value + s.unit + '</td>' +
+      '<td class="score-dots">' + dots + '</td>' +
+      '<td style="text-align:center;"><span class="lv-badge ' + cls + '">' + s.level + '点</span></td>';
+    tbody.appendChild(tr);
+  });
+
+  // おすすめエクササイズ
+  var exDiv = document.getElementById('res-exercises');
+  var items = (r.exercises || []).filter(function(e) { return e; });
+  if (items.length === 0) {
+    exDiv.innerHTML = '<p class="ex-all-good">すべての種目で評価4点以上です！好きなエクササイズに挑戦してください 💪</p>';
+  } else {
+    exDiv.innerHTML = items.map(function(e) {
+      var idx = e.indexOf('：');
+      var part = idx >= 0 ? e.slice(0, idx) : e;
+      var list = idx >= 0 ? e.slice(idx + 1) : '';
+      return '<div class="ex-item"><span class="ex-part">' + part + '</span>' + list + '</div>';
+    }).join('');
+  }
+
+  document.getElementById('results-section').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── ペンタゴンレーダーチャート SVG ── */
+function makeRadarSvg(levels) {
+  var cx = 120, cy = 118, R = 80;
+  /* 頂点角度（上から時計回り：top, upper-right, lower-right, lower-left, upper-left） */
+  var ANG = [270, 342, 54, 126, 198];
+  var LABELS = ['スクワット', 'ステッピング', 'プッシュアップ', '上体起こし', '椅子立ち'];
+
+  function rad(d) { return d * Math.PI / 180; }
+  function pt(a, r) { return { x: cx + r * Math.cos(rad(a)), y: cy + r * Math.sin(rad(a)) }; }
+  function pts(r) { return ANG.map(function(a) { return pt(a, r); }); }
+  function poly(r, fill, stroke, sw) {
+    var d = pts(r).map(function(p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ');
+    return '<polygon points="' + d + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+  }
+
+  /* グリッド */
+  var grid = [1,2,3,4,5].map(function(n) { return poly(R*n/5, 'none', '#e0e0e0', 1); }).join('');
+  /* 軸線 */
+  var axes = ANG.map(function(a) {
+    var ep = pt(a, R);
+    return '<line x1="' + cx + '" y1="' + cy + '" x2="' + ep.x.toFixed(1) + '" y2="' + ep.y.toFixed(1) + '" stroke="#e0e0e0" stroke-width="1"/>';
+  }).join('');
+  /* スコアポリゴン */
+  var sPts = ANG.map(function(a, i) { return pt(a, R * (levels[i] / 5)); });
+  var sPoly = '<polygon points="' + sPts.map(function(p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ') +
+    '" fill="rgba(46,125,50,.22)" stroke="#2e7d32" stroke-width="2.5" stroke-linejoin="round"/>';
+  /* ドット */
+  var dots = sPts.map(function(p) {
+    return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="5" fill="#2e7d32"/>';
+  }).join('');
+  /* ラベル */
+  var lbls = ANG.map(function(a, i) {
+    var p = pt(a, R + 26);
+    var anch = Math.abs(p.x - cx) < 8 ? 'middle' : (p.x > cx ? 'start' : 'end');
+    return '<text x="' + p.x.toFixed(1) + '" y="' + p.y.toFixed(1) + '" text-anchor="' + anch +
+      '" font-size="10.5" fill="#555" dominant-baseline="middle" font-family="Meiryo,sans-serif">' + LABELS[i] + '</text>';
+  }).join('');
+  /* 中央の得点数字 */
+  var nums = ANG.map(function(a, i) {
+    var p = pt(a, R * (levels[i] / 5));
+    var off = levels[i] >= 4 ? -10 : 10;
+    return '<text x="' + (p.x + off).toFixed(1) + '" y="' + p.y.toFixed(1) +
+      '" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e7d32" dominant-baseline="middle">' + levels[i] + '</text>';
+  }).join('');
+
+  return '<svg viewBox="0 0 240 236" width="240" height="236" xmlns="http://www.w3.org/2000/svg">' +
+    grid + axes + sPoly + dots + lbls + nums + '</svg>';
+}
+
+function onFailure(err) {
+  document.getElementById('submit-btn').disabled = false;
+  showOverlay('❌', 'エラーが発生しました', (err && err.message) || '通信エラーです。再度お試しください。', true, true);
+}
+
+function showOverlay(icon, title, msg, showClose, isErr) {
+  document.getElementById('status-icon').textContent = icon;
+  document.getElementById('status-title').textContent = title;
+  document.getElementById('status-msg').textContent = msg;
+  var box = document.getElementById('status-box');
+  box.className = 'status-box' + (isErr ? ' error' : '');
+  document.getElementById('retry-btn').style.display = showClose ? 'inline-block' : 'none';
+  document.getElementById('status-overlay').classList.add('show');
+}
+
+function closeOverlay() {
+  document.getElementById('status-overlay').classList.remove('show');
+}
+</script>
+</body>
+</html>
