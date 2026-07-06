@@ -70,8 +70,7 @@
 
     <div class="notice">
       <b>📧  登録の流れ</b><br>
-      このフォームを送信すると、入力いただいたメールアドレスに<b>確認メール</b>が届きます。
-      メール内のリンクをクリックすると登録が完了します。<br>
+      このフォームを送信すると、消防局名とメールアドレスが直接登録されます。<br>
       登録完了後、毎月の集計完了後にフィードバックレポートをお送りします。
     </div>
 
@@ -112,7 +111,7 @@
 
       <div class="field">
         <label>メールアドレス<span class="req">*</span>
-          <span class="hint">フィードバックレポートの送付先です。確認メールが届きます。</span>
+          <span class="hint">フィードバックレポートの送付先です。</span>
         </label>
         <input type="email" id="email" placeholder="example@fire-dept.go.jp">
         <div class="error-msg" id="err-email">有効なメールアドレスを入力してください</div>
@@ -125,7 +124,7 @@
       </div>
     </div>
 
-    <button class="submit-btn" id="submit-btn" onclick="submitForm()">確認メールを送信する</button>
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">登録する</button>
   </div><!-- /form-section -->
 
   <!-- 送信結果 -->
@@ -144,7 +143,7 @@
  * ★ ここに Apps Script のデプロイ URL を貼り付けてください ★
  * FireForm_GitHub.html と同じ URL で OK です。
  *======================================================*/
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDDlkgmhZoNyXrolDtsbTG_nFtX4n4isTx7D4rc8i_id41HimPN-iJrrhL6wSJJm1h/exec';
+var SCRIPT_URL = 'https://script.google.com/macros/s/ここにURLを貼り付け/exec';
 
 /* ===================== 消防局データ ===================== */
 var DEPARTMENTS = {
@@ -299,20 +298,20 @@ function submitForm() {
   .then(function(res) { return res.json(); })
   .then(function(result) {
     if (result.error === 'already_registered') {
-      showResult('error', '⚠️', '登録済みのメールアドレスがあります', result.message);
+      showResult('error', '⚠️', '登録済みの消防局またはメールアドレスがあります',
+        '入力された消防局名またはメールアドレスはすでに登録されています。');
     } else if (result.error) {
       showResult('error', '❌', 'エラーが発生しました', result.error);
     } else {
-      showResult('ok', '📧', '確認メールを送信しました',
-        '入力いただいたメールアドレスに確認メールをお送りしました。<br' +
-        '>メール内のリンクをクリックすると登録が完了します。<br' +
-        '>（メールが届かない場合は迷惑メールフォルダをご確認ください）');
+      showResult('ok', '✅', '登録が完了しました',
+        '入力いただいた内容を登録しました。<br>' +
+        '今後、消防局・本部向けのフィードバックレポートは登録されたメールアドレス宛に送信されます。');
     }
   })
   .catch(function(err) {
     showResult('error', '❌', '送信に失敗しました', err.message || String(err));
     btn.disabled = false;
-    btn.textContent = '確認メールを送信する';
+    btn.textContent = '登録する';
   });
 }
 
